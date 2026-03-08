@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="glassHi" cx="35%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+      <stop offset="45%" stop-color="#dfe7ef" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#8aa0b4" stop-opacity="0.08"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2c2f34"/>
+      <stop offset="55%" stop-color="#0c0d10"/>
+      <stop offset="100%" stop-color="#4a4f57"/>
+    </linearGradient>
+    <radialGradient id="slime" cx="50%" cy="70%" r="58%">
+      <stop offset="0%" stop-color="#d9ff6b"/>
+      <stop offset="45%" stop-color="#8fdc1e"/>
+      <stop offset="100%" stop-color="#37a900"/>
+    </radialGradient>
+    <linearGradient id="fuse" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9f7a48"/>
+      <stop offset="100%" stop-color="#e8c78d"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="256" cy="430" rx="150" ry="26" fill="#000" opacity="0.22"/>
+
+  <g transform="translate(256 122)">
+    <circle r="40" fill="url(#metal)" stroke="#090a0c" stroke-width="5"/>
+    <circle r="31" fill="#d7b35d" stroke="#6b4e1e" stroke-width="4"/>
+    <circle r="16" fill="#101214"/>
+  </g>
+
+  <path d="M256 82c18 0 33 5 44 15 12 10 22 24 31 42l36 6c-16-32-32-53-48-66-17-13-38-20-63-20-8 0-8 23 0 23z"
+    fill="#1f1510" opacity="0.95"/>
+  <path d="M253 76c20 0 36 7 49 21 9 9 17 22 25 38" fill="none" stroke="url(#fuse)" stroke-width="16" stroke-linecap="round"/>
+
+  <g transform="translate(392 126)">
+    <circle r="18" fill="#ffb400"/>
+    <circle r="11" fill="#fff4cb"/>
+    <path d="M0-34 6-21 20-22 10-10 15 5 0-3-15 5-10-10-20-22-6-21Z" fill="#ff8f00"/>
+  </g>
+
+  <circle cx="256" cy="282" r="164" fill="url(#metal)" stroke="#07090b" stroke-width="10"/>
+
+  <g clip-path="url(#clip)">
+    <path d="M118 300c29-27 58-20 86-17 28 3 57 7 84 2 35-7 62-30 106-10v125H118z" fill="url(#slime)"/>
+    <ellipse cx="250" cy="298" rx="132" ry="22" fill="#a4ef43" opacity="0.55"/>
+    <ellipse cx="250" cy="309" rx="141" ry="17" fill="#3fa600" opacity="0.35"/>
+
+    <circle cx="189" cy="348" r="12" fill="#b8ff66" stroke="#5aa509" stroke-width="3"/>
+    <circle cx="294" cy="347" r="18" fill="#b8ff66" stroke="#5aa509" stroke-width="3"/>
+    <circle cx="334" cy="331" r="9" fill="#caff80" stroke="#5aa509" stroke-width="3"/>
+    <circle cx="232" cy="324" r="11" fill="#caff80" stroke="#5aa509" stroke-width="3"/>
+    <circle cx="256" cy="362" r="10" fill="#ccff88" stroke="#5aa509" stroke-width="3"/>
+  </g>
+
+  <clipPath id="clip">
+    <circle cx="256" cy="282" r="158"/>
+  </clipPath>
+
+  <circle cx="256" cy="282" r="164" fill="none" stroke="#e9f5ff" stroke-width="10" opacity="0.9"/>
+  <circle cx="256" cy="282" r="156" fill="url(#glassHi)"/>
+  <ellipse cx="200" cy="228" rx="34" ry="26" fill="#fff" opacity="0.72"/>
+  <ellipse cx="175" cy="196" rx="10" ry="9" fill="#fff" opacity="0.62"/>
+</svg>
