@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <g fill="none" stroke="#111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Fuse -->
+    <path d="M126 26 C145 14, 164 22, 174 38" stroke="#c6a46a"/>
+    <path d="M130 28 C146 20, 160 24, 169 38" stroke="#9a7b49" stroke-width="4"/>
+
+    <!-- Spark -->
+    <g stroke="#111" stroke-width="4">
+      <circle cx="184" cy="40" r="6" fill="#ffd84a"/>
+      <path d="M184 24 L184 30"/>
+      <path d="M184 50 L184 56"/>
+      <path d="M168 40 L174 40"/>
+      <path d="M194 40 L200 40"/>
+      <path d="M173 29 L177 33"/>
+      <path d="M191 47 L195 51"/>
+      <path d="M173 51 L177 47"/>
+      <path d="M191 33 L195 29"/>
+    </g>
+
+    <!-- Metal cap -->
+    <ellipse cx="128" cy="54" rx="30" ry="11" fill="#c9c9c9"/>
+    <rect x="98" y="54" width="60" height="14" rx="6" fill="#a8a8a8"/>
+
+    <!-- Bomb top shell -->
+    <path d="M64 72 C64 40, 192 40, 192 72 C192 96, 170 112, 128 112 C86 112, 64 96, 64 72 Z" fill="#2b2b2b"/>
+
+    <!-- Glass bowl -->
+    <path d="M54 106 C58 164, 86 210, 128 210 C170 210, 198 164, 202 106 Z" fill="#d8f7ff" fill-opacity="0.35"/>
+
+    <!-- Slime liquid -->
+    <path d="M62 132 C88 122, 106 136, 128 132 C150 128, 166 120, 194 132 C188 170, 166 198, 128 198 C90 198, 68 170, 62 132 Z" fill="#7cff2f"/>
+
+    <!-- Slime glow ring -->
+    <path d="M66 136 C88 129, 108 140, 128 136 C149 133, 168 127, 190 136" stroke="#b6ff63" stroke-width="6"/>
+
+    <!-- Bubbles -->
+    <circle cx="98" cy="154" r="9" fill="#baff86"/>
+    <circle cx="123" cy="168" r="6" fill="#c9ff9e"/>
+    <circle cx="146" cy="156" r="11" fill="#baff86"/>
+    <circle cx="165" cy="170" r="7" fill="#c9ff9e"/>
+    <circle cx="84" cy="176" r="7" fill="#c9ff9e"/>
+
+    <!-- Glass outline -->
+    <path d="M54 106 C58 164, 86 210, 128 210 C170 210, 198 164, 202 106"/>
+
+    <!-- Doodle highlight -->
+    <path d="M92 118 C84 136, 86 164, 94 182" stroke="#ffffff" stroke-width="6"/>
+  </g>
+</svg>
