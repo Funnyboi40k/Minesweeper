@@ -42,6 +42,8 @@ const LAVA_UNLOCK_KEY = "ms_unlock_lava_bomb";
 const LAVA_UNLOCK_COMPLETED_GAMES = 10;
 const HINTS_PER_GAME = 5;
 const BOMB_DRAW_SCALE = 0.85;
+const LONG_PRESS_MS = 3000;
+const LONG_PRESS_TILE_MARGIN_PX = 10;
 const sessionStore = new Map();
 
 const CATALOG = {
@@ -81,6 +83,8 @@ let focused = { r: 0, c: 0 };
 let pendingReward = null;
 let gachaTimerId = null;
 let stats = loadStats();
+let longPressState = null;
+let suppressedClick = null;
 
 const bombImageCache = new Map();
 const explosionManager = new ExplosionManager(explosionCanvasEl);
@@ -548,6 +552,106 @@ function openGacha() {
   }, 1200);
 }
 
+function shouldAllowLongPress(r, c) {
+  if (!state || state.ended) return false;
+  const cell = state.cells?.[r]?.[c];
+  return Boolean(cell && !cell.revealed);
+}
+
+function clearPressedCells() {
+  boardEl.querySelectorAll(".cell.press").forEach((el) => el.classList.remove("press"));
+}
+
+function clearLongPressVisual(btn) {
+  if (!btn) return;
+  btn.classList.remove("hold-armed");
+}
+
+function cancelLongPress() {
+  if (!longPressState) return;
+  if (longPressState.timerId) clearTimeout(longPressState.timerId);
+  if (longPressState.btn && longPressState.btn.releasePointerCapture) {
+    try {
+      if (longPressState.btn.hasPointerCapture?.(longPressState.pointerId)) {
+        longPressState.btn.releasePointerCapture(longPressState.pointerId);
+      }
+    } catch {
+      // Ignore stale pointer capture release errors.
+    }
+  }
+  clearLongPressVisual(longPressState.btn);
+  longPressState.btn?.classList.remove("press");
+  longPressState = null;
+}
+
+function pointWithinTileBounds(btn, x, y) {
+  const rect = btn.getBoundingClientRect();
+  const m = LONG_PRESS_TILE_MARGIN_PX;
+  return x >= rect.left - m && x <= rect.right + m && y >= rect.top - m && y <= rect.bottom + m;
+}
+
+function consumeSuppressedClick(r, c) {
+  if (!suppressedClick) return false;
+  if (performance.now() > suppressedClick.expiresAt) {
+    suppressedClick = null;
+    return false;
+  }
+  if (suppressedClick.r === r && suppressedClick.c === c) {
+    suppressedClick = null;
+    return true;
+  }
+  return false;
+}
+
+function startLongPress(e, btn) {
+  const r = Number(btn.dataset.r);
+  const c = Number(btn.dataset.c);
+  if (!Number.isInteger(r) || !Number.isInteger(c)) return;
+  if (!shouldAllowLongPress(r, c)) return;
+
+  cancelLongPress();
+  btn.classList.add("hold-armed");
+  if (btn.setPointerCapture) {
+    try {
+      btn.setPointerCapture(e.pointerId);
+    } catch {
+      // Pointer capture can fail for stale pointers; keep long-press functional.
+    }
+  }
+
+  longPressState = {
+    pointerId: e.pointerId,
+    r,
+    c,
+    btn,
+    triggered: false,
+    timerId: setTimeout(() => {
+      if (!longPressState || longPressState.triggered) return;
+      if (!shouldAllowLongPress(r, c)) {
+        cancelLongPress();
+        return;
+      }
+
+      const wasFlagged = state.cells[r][c].flagged;
+      const changed = setFlagState(r, c, !wasFlagged);
+      if (!changed) {
+        cancelLongPress();
+        return;
+      }
+      longPressState.triggered = true;
+      suppressedClick = { r, c, expiresAt: performance.now() + 1200 };
+      if (navigator.vibrate) navigator.vibrate(15);
+      cancelLongPress();
+    }, LONG_PRESS_MS),
+  };
+}
+
+function handlePointerRelease(pointerId) {
+  if (!longPressState) return;
+  if (longPressState.pointerId !== pointerId) return;
+  cancelLongPress();
+}
+
 function initGame(level = difficultyEl.value) {
   const cfg = SETTINGS[level];
   if (!cfg) return;
@@ -574,6 +678,7 @@ function initGame(level = difficultyEl.value) {
     clearInterval(timerId);
     timerId = null;
   }
+  cancelLongPress();
 
   state = {
     level,
@@ -827,16 +932,23 @@ function revealCell(r, c) {
 }
 
 function toggleFlag(r, c) {
-  if (state.ended) return;
   const cell = state.cells[r][c];
-  if (cell.revealed) return;
+  setFlagState(r, c, !cell.flagged);
+}
+
+function setFlagState(r, c, nextFlagged) {
+  if (state.ended) return false;
+  const cell = state.cells[r][c];
+  if (cell.revealed) return false;
+  if (cell.flagged === nextFlagged) return false;
 
   startTimerIfNeeded();
-  cell.flagged = !cell.flagged;
-  state.flags += cell.flagged ? 1 : -1;
+  cell.flagged = nextFlagged;
+  state.flags += nextFlagged ? 1 : -1;
   applyCellUI(r, c);
   updateStats();
-  sfx.flag(cell.flagged);
+  sfx.flag(nextFlagged);
+  return true;
 }
 
 function explosionPayloadForSkin(skin) {
@@ -1073,13 +1185,49 @@ function confettiBurst() {
 }
 
 boardEl.addEventListener("mousedown", (e) => {
+  if (e.button !== 0) return;
   const cell = e.target.closest(".cell");
   if (!cell) return;
   cell.classList.add("press");
 });
 
 window.addEventListener("mouseup", () => {
-  boardEl.querySelectorAll(".cell.press").forEach((el) => el.classList.remove("press"));
+  clearPressedCells();
+});
+
+boardEl.addEventListener("pointerdown", (e) => {
+  if (e.button !== 0) return;
+  const cell = e.target.closest(".cell");
+  if (!cell) return;
+  cell.classList.add("press");
+  startLongPress(e, cell);
+});
+
+boardEl.addEventListener("pointermove", (e) => {
+  if (!longPressState || longPressState.pointerId !== e.pointerId) return;
+  if (!pointWithinTileBounds(longPressState.btn, e.clientX, e.clientY)) {
+    cancelLongPress();
+  }
+});
+
+boardEl.addEventListener("pointerup", (e) => {
+  handlePointerRelease(e.pointerId);
+  clearPressedCells();
+});
+
+boardEl.addEventListener("pointercancel", (e) => {
+  handlePointerRelease(e.pointerId);
+  clearPressedCells();
+});
+
+window.addEventListener("pointerup", (e) => {
+  handlePointerRelease(e.pointerId);
+  clearPressedCells();
+});
+
+window.addEventListener("pointercancel", (e) => {
+  handlePointerRelease(e.pointerId);
+  clearPressedCells();
 });
 
 boardEl.addEventListener("click", (e) => {
@@ -1087,6 +1235,7 @@ boardEl.addEventListener("click", (e) => {
   if (!cell) return;
   const r = Number(cell.dataset.r);
   const c = Number(cell.dataset.c);
+  if (consumeSuppressedClick(r, c)) return;
   setFocus(r, c);
   revealCell(r, c);
   updateStats();
@@ -1094,6 +1243,7 @@ boardEl.addEventListener("click", (e) => {
 
 boardEl.addEventListener("contextmenu", (e) => {
   e.preventDefault();
+  cancelLongPress();
   const cell = e.target.closest(".cell");
   if (!cell) return;
   const r = Number(cell.dataset.r);
